@@ -7,6 +7,8 @@
 
 #include "triangulation.h"
 
+#define sign(x) ((x > 0) ? 1 : ( x < 0 ? -1 : 0))
+
 using namespace std;
 
 namespace CMU462 {
@@ -242,8 +244,47 @@ void SoftwareRendererImp::rasterize_line( float x0, float y0,
                                           float x1, float y1,
                                           Color color) {
 
-  // Task 1: 
-  // Implement line rasterization
+	// Task 1: 
+	// Implement line rasterization
+
+	// Bresenham Line-Drawing Algorithm
+	int dx = abs(x1 - x0);
+	int dy = abs(y1 - y0);
+	int x = x0;
+	int y = y0;
+	int signX = sign(x1 - x0);
+	int signY = sign(y1 - y0);
+
+	// Swap if dy is larger
+	bool hasSwapped = false;
+	if(dy > dx)
+	{
+		swap(dx, dy);
+		hasSwapped = true;
+	}
+
+	int eps = 2 * dy - dx;
+	for(int i = 0; i <= dx; i++)
+	{
+		// Plot point
+		rasterize_point(x, y, color);
+
+		// Calculate next point
+		while(eps >= 0)
+		{
+			eps -= 2 * dx;
+			if(hasSwapped)
+				x += signX;
+			else
+				y += signY;
+		}
+
+		eps += 2 * dy;
+		if(hasSwapped)
+			y += signY;
+		else
+			x += signX;
+	}
 }
 
 void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
